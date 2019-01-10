@@ -12,7 +12,16 @@ class Card:
         self.is_faceup = True
 
     def hide(self):
-        self.fais_faceup = False
+        self.is_faceup = False
+
+    def toggle(self):
+        if self.is_faceup:
+            self.hide()
+        else:
+            self.show()
+
+    def get_value(self):
+        return self.faceup if self.is_faceup else self.facedown
 
     def is_faceup(self):
         return self.is_faceup

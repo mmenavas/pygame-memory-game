@@ -29,7 +29,8 @@ class Tile(pygame.sprite.Sprite):
         self.surf.blit(self.image, [border, border])
 
     def update(self, *args):
-        self.text = self.font.render(self.card.get_faceup(), 1, self.font_color)
+        self.card.toggle()
+        self.text = self.font.render(self.card.get_value(), 1, self.font_color)
         self.image.fill(self.bg_color)
         self.image.blit(self.text, [self.width/2 - self.text.get_width()/2, self.height/2 - self.text.get_height()/2])
 
@@ -109,19 +110,12 @@ while running:
 
     tiles.draw(screen)
 
-    # Show a single tile
-    # coordinates = ((15 % settings.grid_x) * settings.tile_width, (15 % settings.grid_y) * settings.tile_height)
-    # screen.blit(tiles[15].surf, coordinates)
-
     # Handle click on card event
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
     if click[0] == 1:
         for tile in tiles.get_sprites_at(mouse):
             tile.update()
-
-    # else:
-    #     pygame.draw.rect(gameDisplay, ic,(x,y,w,h))
 
     # # Update the display
     pygame.display.flip()
