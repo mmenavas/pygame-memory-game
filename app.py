@@ -5,7 +5,7 @@ from Game import Cards
 
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, text, size, color, bg_color, width, height, border, border_color):
+    def __init__(self, text, size, color, bg_color, width, height, border, border_color, x, y):
         pygame.sprite.Sprite.__init__(self)
         self.font = pygame.font.SysFont("Arial", size)
         self.textSurf = self.font.render(text, 1, color)
@@ -15,6 +15,8 @@ class Tile(pygame.sprite.Sprite):
         self.image.fill(bg_color)
         w = self.textSurf.get_width()
         h = self.textSurf.get_height()
+        # self.rect = self.image.get_rect()
+        self.rect = pygame.Rect(x, y, width, height)
         self.rect = self.image.get_rect()
         self.image.blit(self.textSurf, [width/2 - w/2, height/2 - h/2])
         self.surf.blit(self.image, [border, border])
@@ -63,17 +65,29 @@ screen.fill(settings.bg_color)
 #     ))
 
 tiles = pygame.sprite.LayeredUpdates()
-for i in range(settings.unique_tiles * 2):
-    tiles.add(Tile(
-        "?",
-        settings.tile_font_size,
-        settings.tile_font_color,
-        settings.tile_bg_color,
-        settings.tile_width,
-        settings.tile_height,
-        settings.tile_border,
-        settings.tile_border_color
-    ))
+x = 0
+y = 0
+index = 0
+while y < settings.grid_y:
+    while x < settings.grid_x:
+        coordinates = (x * settings.tile_width, y * settings.tile_height)
+        # screen.blit(tiles.get_sprite(index).surf, coordinates)
+        tiles.add(Tile(
+            "?",
+            settings.tile_font_size,
+            settings.tile_font_color,
+            settings.tile_bg_color,
+            settings.tile_width,
+            settings.tile_height,
+            settings.tile_border,
+            settings.tile_border_color,
+            settings.tile_width * x,
+            settings.tile_height * y
+        ))
+        x += 1
+        index += 1
+    x = 0
+    y += 1
 
 # Variable to keep our main loop running
 running = True
@@ -92,18 +106,7 @@ while running:
         elif event.type == QUIT:
             running = False
 
-    # Draw the cards to the screen
-    x = 0
-    y = 0
-    index = 0
-    while y < settings.grid_y:
-        while x < settings.grid_x:
-            coordinates = (x * settings.tile_width, y * settings.tile_height)
-            screen.blit(tiles.get_sprite(index).surf, coordinates)
-            x += 1
-            index += 1
-        x = 0
-        y += 1
+    tiles.draw(screen)
 
     # Show a single tile
     # coordinates = ((15 % settings.grid_x) * settings.tile_width, (15 % settings.grid_y) * settings.tile_height)
@@ -125,3 +128,7 @@ while running:
 
     # # Update the display
     pygame.display.flip()
+
+# TODO: Learn how to use rectangles and surface
+# sprites_clicked = [sprite for sprite in all_my_sprites_list if sprite.rect.collidepoint(x, y)]
+
