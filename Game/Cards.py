@@ -9,7 +9,7 @@ class Cards:
     matched = set()
     active = 0
 
-    def __init__(self, count):
+    def __init__(self, count, facedown = "?"):
 
         # Generate values for cards
         alphabet = list(string.ascii_uppercase)
@@ -20,7 +20,7 @@ class Cards:
         position = 1
 
         for item in items:
-            cards[position] = Card.Card(item)
+            cards[position] = Card.Card(item, facedown)
             position += 1
 
         self.cards = cards
@@ -39,7 +39,7 @@ class Cards:
         if not self.active:
             self.active = position
         else:
-            if self.cards[self.active].get_value() == self.cards[position].get_value():
+            if self.cards[self.active].get_faceup() == self.cards[position].get_faceup():
                 # TODO: return keys instead of printing messages
                 print("It's a match!")
                 self.matched.add(self.active)

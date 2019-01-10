@@ -1,24 +1,38 @@
-import time
 import pygame
 from pygame.locals import *
 from Game import Cards
 
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, text, size, color, bg_color, width, height, border, border_color, x, y):
+    def __init__(self, card, font_size, font_color, bg_color, width, height, border, border_color, x_pos, y_pos):
         pygame.sprite.Sprite.__init__(self)
-        self.font = pygame.font.SysFont("Arial", size)
-        self.textSurf = self.font.render(text, 1, color)
+        # Set properties
+        self.card = card
+        self.font_size = font_size
+        self.font_color = font_color
+        self.bg_color = bg_color
+        self.width = width
+        self.height = height
+        self.border = border
+        self.border_color = border_color
+        self.x_pos = x_pos
+        self.y_pos = y_pos
+        # Build tile
+        self.font = pygame.font.SysFont("Arial", font_size)
+        self.text = self.font.render(card.get_facedown(), 1, font_color)
         self.surf = pygame.Surface((width, height))
         self.surf.fill(border_color)
         self.image = pygame.Surface((width - border * 2, height - border * 2))
         self.image.fill(bg_color)
-        w = self.textSurf.get_width()
-        h = self.textSurf.get_height()
-        # self.rect = self.image.get_rect()
-        self.rect = pygame.Rect(x, y, width, height)
-        self.image.blit(self.textSurf, [width/2 - w/2, height/2 - h/2])
+        self.rect = pygame.Rect(x_pos + border, y_pos + border, width, height)
+        self.image.blit(self.text, [width/2 - self.text.get_width()/2, height/2 - self.text.get_height()/2])
         self.surf.blit(self.image, [border, border])
+
+    def update(self, *args):
+        self.text = self.font.render(self.card.get_faceup(), 1, self.font_color)
+        self.image.fill(self.bg_color)
+        self.image.blit(self.text, [self.width/2 - self.text.get_width()/2, self.height/2 - self.text.get_height()/2])
+
 
 class Settings:
     def __init__(self):
@@ -33,9 +47,10 @@ class Settings:
         self.tile_font_size = 160
         self.tile_border = 5
         self.tile_border_color = (128, 128, 128)
+        self.padding = 20
 
     def get_dimensions(self):
-        return self.tile_width * self.grid_x, self.tile_height * self.grid_y
+        return self.tile_width * self.grid_x + self.padding * 2, self.tile_height * self.grid_y + self.padding * 2
 
 
 # Get settings
@@ -49,20 +64,8 @@ screen = pygame.display.set_mode(settings.get_dimensions())
 screen.fill(settings.bg_color)
 
 # Build tiles
-# cards = Cards.Cards(settings.unique_tiles)
-# tiles = pygame.sprite.Group()
-# for index, card in cards.get_cards().items():
-#     tiles.add(Tile(
-#         str(card.get_value()),
-#         settings.tile_font_size,
-#         settings.tile_font_color,
-#         settings.tile_bg_color,
-#         settings.tile_width,
-#         settings.tile_height,
-#         settings.tile_border,
-#         settings.tile_border_color
-#     ))
-
+cards_game = Cards.Cards(settings.unique_tiles)
+cards = cards_game.get_cards()
 tiles = pygame.sprite.LayeredUpdates()
 x = 0
 y = 0
@@ -70,9 +73,8 @@ index = 0
 while y < settings.grid_y:
     while x < settings.grid_x:
         coordinates = (x * settings.tile_width, y * settings.tile_height)
-        # screen.blit(tiles.get_sprite(index).surf, coordinates)
         tiles.add(Tile(
-            "?",
+            cards[index + 1],
             settings.tile_font_size,
             settings.tile_font_color,
             settings.tile_bg_color,
@@ -80,8 +82,8 @@ while y < settings.grid_y:
             settings.tile_height,
             settings.tile_border,
             settings.tile_border_color,
-            settings.tile_width * x,
-            settings.tile_height * y
+            settings.tile_width * x + settings.padding,
+            settings.tile_height * y + settings.padding
         ))
         x += 1
         index += 1
@@ -111,22 +113,17 @@ while running:
     # coordinates = ((15 % settings.grid_x) * settings.tile_width, (15 % settings.grid_y) * settings.tile_height)
     # screen.blit(tiles[15].surf, coordinates)
 
-    # Get mouse data
+    # Handle click on card event
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
+    if click[0] == 1:
+        for tile in tiles.get_sprites_at(mouse):
+            tile.update()
 
-    # Handle mouse click
-    # if item.image.get_rect().collidepoint(mouse):
-    items = len(tiles.get_sprites_at(mouse))
-    if items:
-        if click[0] == 1:
-            print("Tile {}".format(items))
     # else:
     #     pygame.draw.rect(gameDisplay, ic,(x,y,w,h))
 
     # # Update the display
     pygame.display.flip()
 
-# TODO: Learn how to use rectangles and surface
-# sprites_clicked = [sprite for sprite in all_my_sprites_list if sprite.rect.collidepoint(x, y)]
 
