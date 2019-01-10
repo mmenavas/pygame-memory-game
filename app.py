@@ -17,7 +17,6 @@ class Tile(pygame.sprite.Sprite):
         h = self.textSurf.get_height()
         # self.rect = self.image.get_rect()
         self.rect = pygame.Rect(x, y, width, height)
-        self.rect = self.image.get_rect()
         self.image.blit(self.textSurf, [width/2 - w/2, height/2 - h/2])
         self.surf.blit(self.image, [border, border])
 
@@ -119,10 +118,9 @@ while running:
     # Handle mouse click
     # if item.image.get_rect().collidepoint(mouse):
     items = len(tiles.get_sprites_at(mouse))
-    print(items)
-    # if items:
-    #     if click[0] == 1:
-    #         print("Tile {}".format(items))
+    if items:
+        if click[0] == 1:
+            print("Tile {}".format(items))
     # else:
     #     pygame.draw.rect(gameDisplay, ic,(x,y,w,h))
 
