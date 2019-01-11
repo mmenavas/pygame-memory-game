@@ -8,6 +8,7 @@ class Cards:
     cards = []
     matched = set()
     active = 0
+    unmatched = 0, 0
 
     def __init__(self, count, facedown = "?"):
 
@@ -28,36 +29,59 @@ class Cards:
     def get_cards(self):
         return self.cards
 
-    # TODO: Break function into two functions: play() and check()
-    # TODO: Replace self.active with self.card_1 and self.card_2.
-    #  Then use check() to find out if cards match or if game is over.
-    # TODO: Add validation to prevent faceup cards from being chosen.
     def play(self, position):
-        is_won = False;
-        self.cards[position].show()
-        self.print()
+        status_code_list = {
+            0: "invalid_card",
+            1: "pick_next_card",
+            2: "not_a_match",
+            3: "match",
+            4: "winner",
+        }
+
+        # Invalid card.
+        if self.cards[position].is_on():
+            print(status_code_list[0])
+            return status_code_list[0];
+
+        # Picking first card
         if not self.active:
             self.active = position
-        else:
-            if self.cards[self.active].get_faceup() == self.cards[position].get_faceup():
-                # TODO: return keys instead of printing messages
-                print("It's a match!")
-                self.matched.add(self.active)
-                self.matched.add(position)
-                if len(self.matched) == len(self.cards):
-                    is_won = True
-            else:
-                print("It's not a match.")
-                self.cards[position].hide()
-                self.cards[self.active].hide()
+            self.cards[position].show()
+            print(status_code_list[1])
+            return status_code_list[1];
+
+        # Picking second card.
+        self.cards[position].show()
+        if self.cards[self.active].get_value() == self.cards[position].get_value():
+            # It's a match.
+            self.matched.add(self.active)
+            self.matched.add(position)
+            if len(self.matched) == len(self.cards):
+                # Game over.
+                print(status_code_list[4])
+                return status_code_list[4];
             self.active = 0
-        return is_won
+            print(status_code_list[3])
+            return status_code_list[3];
+        else:
+            # Not a match.
+            # self.cards[position].hide()
+            # self.cards[self.active].hide()
+            self.unmatched = self.active, position
+            self.active = 0
+            print(status_code_list[2])
+            return status_code_list[2];
+
+    def hide_cards(self):
+        for i in self.unmatched:
+            if i > 0:
+                self.cards[i].hide()
 
     def print(self):
         output = ""
         for position, card in self.cards.items():
-            if card.is_faceup():
-                output += "{} ".format(card.value)
+            if card.is_on():
+                output += "{} ".format(card.get_value())
             else:
                 output += "{} ".format(position)
         print(output)
@@ -65,6 +89,6 @@ class Cards:
     def print_values(self):
         output = ""
         for position, card in self.cards.items():
-            output += "{} ".format(card.value)
+            output += "{} ".format(card.get_faceup())
         print(output)
 

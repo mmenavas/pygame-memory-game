@@ -23,7 +23,7 @@ class Card:
     def get_value(self):
         return self.faceup if self.is_faceup else self.facedown
 
-    def is_faceup(self):
+    def is_on(self):
         return self.is_faceup
 
     def set_faceup(self, value):

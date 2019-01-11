@@ -4,9 +4,10 @@ from Game import Cards
 
 
 class Tile(pygame.sprite.Sprite):
-    def __init__(self, card, font_size, font_color, bg_color, width, height, border, border_color, x_pos, y_pos):
+    def __init__(self, index, card, font_size, font_color, bg_color, width, height, border, border_color, x_pos, y_pos):
         pygame.sprite.Sprite.__init__(self)
         # Set properties
+        self.index = index
         self.card = card
         self.font_size = font_size
         self.font_color = font_color
@@ -29,7 +30,6 @@ class Tile(pygame.sprite.Sprite):
         self.surf.blit(self.image, [border, border])
 
     def update(self, *args):
-        self.card.toggle()
         self.text = self.font.render(self.card.get_value(), 1, self.font_color)
         self.image.fill(self.bg_color)
         self.image.blit(self.text, [self.width/2 - self.text.get_width()/2, self.height/2 - self.text.get_height()/2])
@@ -75,6 +75,7 @@ while y < settings.grid_y:
     while x < settings.grid_x:
         coordinates = (x * settings.tile_width, y * settings.tile_height)
         tiles.add(Tile(
+            index + 1,
             cards[index + 1],
             settings.tile_font_size,
             settings.tile_font_color,
@@ -93,6 +94,7 @@ while y < settings.grid_y:
 
 # Variable to keep our main loop running
 running = True
+wait = False
 
 # Our main loop!
 while running:
@@ -110,14 +112,24 @@ while running:
 
     tiles.draw(screen)
 
+    # # Handle wait
+    if wait:
+        wait = False
+        # pygame.time.delay(1000)
+    #     cards_game.hide_cards()
+    #     tiles.update()
+    #     pygame.display.flip()
+
     # Handle click on card event
     mouse = pygame.mouse.get_pos()
     click = pygame.mouse.get_pressed()
     if click[0] == 1:
         for tile in tiles.get_sprites_at(mouse):
-            tile.update()
+            status = cards_game.play(tile.index)
+            if not status == 'invalid_card':
+                tile.update()
+                if status == 'not_a_match':
+                    wait = True
 
-    # # Update the display
     pygame.display.flip()
-
 
