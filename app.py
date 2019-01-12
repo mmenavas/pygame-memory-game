@@ -54,82 +54,98 @@ class Settings:
         return self.tile_width * self.grid_x + self.padding * 2, self.tile_height * self.grid_y + self.padding * 2
 
 
-# Get settings
-settings = Settings()
+def main():
 
-# Initialize pygame
-pygame.init()
+    # Get settings
+    settings = Settings()
 
-# create the screen object
-screen = pygame.display.set_mode(settings.get_dimensions())
-screen.fill(settings.bg_color)
+    # Clock
+    clock = pygame.time.Clock()
 
-# Build tiles
-cards_game = Cards.Cards(settings.unique_tiles)
-cards = cards_game.get_cards()
-tiles = pygame.sprite.LayeredUpdates()
-x = 0
-y = 0
-index = 0
-while y < settings.grid_y:
-    while x < settings.grid_x:
-        coordinates = (x * settings.tile_width, y * settings.tile_height)
-        tiles.add(Tile(
-            index + 1,
-            cards[index + 1],
-            settings.tile_font_size,
-            settings.tile_font_color,
-            settings.tile_bg_color,
-            settings.tile_width,
-            settings.tile_height,
-            settings.tile_border,
-            settings.tile_border_color,
-            settings.tile_width * x + settings.padding,
-            settings.tile_height * y + settings.padding
-        ))
-        x += 1
-        index += 1
+    # Initialize pygame
+    pygame.init()
+
+    # create the screen object
+    screen = pygame.display.set_mode(settings.get_dimensions())
+    screen.fill(settings.bg_color)
+
+    # Build tiles
+    cards_game = Cards.Cards(settings.unique_tiles)
+    cards = cards_game.get_cards()
+    tiles = pygame.sprite.LayeredUpdates()
     x = 0
-    y += 1
+    y = 0
+    index = 0
+    while y < settings.grid_y:
+        while x < settings.grid_x:
+            # coordinates = (x * settings.tile_width, y * settings.tile_height)
+            tiles.add(Tile(
+                index + 1,
+                cards[index + 1],
+                settings.tile_font_size,
+                settings.tile_font_color,
+                settings.tile_bg_color,
+                settings.tile_width,
+                settings.tile_height,
+                settings.tile_border,
+                settings.tile_border_color,
+                settings.tile_width * x + settings.padding,
+                settings.tile_height * y + settings.padding
+            ))
+            x += 1
+            index += 1
+        x = 0
+        y += 1
 
-# Variable to keep our main loop running
-running = True
-wait = False
+    # Variable to keep our main loop running
+    running = True
+    wait = False
+    flip_back = False
 
-# Our main loop!
-while running:
+    # Our main loop!
+    while running:
 
-    # for loop through the event queue
-    for event in pygame.event.get():
-        # Check for KEYDOWN event; KEYDOWN is a constant defined in pygame.locals, which we imported earlier
-        if event.type == KEYDOWN:
-            # If the Esc key has been pressed set running to false to exit the main loop
-            if event.key == K_ESCAPE:
+        # for loop through the event queue
+        for event in pygame.event.get():
+            # Check for KEYDOWN event; KEYDOWN is a constant defined in pygame.locals, which we imported earlier
+            if event.type == KEYDOWN:
+                # If the Esc key has been pressed set running to false to exit the main loop
+                if event.key == K_ESCAPE:
+                    running = False
+            # Check for QUIT event; if QUIT, set running to false
+            elif event.type == QUIT:
                 running = False
-        # Check for QUIT event; if QUIT, set running to false
-        elif event.type == QUIT:
-            running = False
 
-    tiles.draw(screen)
+        tiles.draw(screen)
 
-    # # Handle wait
-    if wait:
-        wait = False
-        # pygame.time.delay(1000)
-    #     cards_game.hide_cards()
-    #     tiles.update()
-    #     pygame.display.flip()
+        # Handle wait
+        if wait:
+            wait = False
+            pygame.time.wait(1000)
+        elif flip_back:
+            flip_back = False
+            cards_game.hide_cards()
+            tiles.update()
+            wait = True
+        else:
+            # Handle click on card event
+            mouse = pygame.mouse.get_pos()
+            click = pygame.mouse.get_pressed()
+            if click[0] == 1:
+                for tile in tiles.get_sprites_at(mouse):
+                    status = cards_game.play(tile.index)
+                    if not status == 'invalid_card':
+                        tile.update()
+                        if status == 'not_a_match':
+                            flip_back = True
 
-    # Handle click on card event
-    mouse = pygame.mouse.get_pos()
-    click = pygame.mouse.get_pressed()
-    if click[0] == 1:
-        for tile in tiles.get_sprites_at(mouse):
-            status = cards_game.play(tile.index)
-            if not status == 'invalid_card':
-                tile.update()
-                if status == 'not_a_match':
-                    wait = True
+        clock.tick(10)
+        pygame.display.flip()
 
-    pygame.display.flip()
+    pygame.time.wait(1000)
+    pygame.quit()
 
+
+# Call the "main" function if running this script
+if __name__ == '__main__':
+    main()
