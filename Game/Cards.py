@@ -1,4 +1,5 @@
 import random
+from random import shuffle
 import string
 from Game import Card
 
@@ -14,6 +15,7 @@ class Cards:
 
         # Generate values for cards
         alphabet = list(string.ascii_uppercase)
+        shuffle(alphabet)
         items = alphabet[0:count]
         items += items
         random.shuffle(items)
@@ -64,9 +66,7 @@ class Cards:
             print(status_code_list[3])
             return status_code_list[3];
         else:
-            # Not a match.
-            # self.cards[position].hide()
-            # self.cards[self.active].hide()
+            # Not a match. Use self.hide_cards() to flip cards back.
             self.unmatched = self.active, position
             self.active = 0
             print(status_code_list[2])

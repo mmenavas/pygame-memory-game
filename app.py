@@ -59,9 +59,6 @@ def main():
     # Get settings
     settings = Settings()
 
-    # Clock
-    clock = pygame.time.Clock()
-
     # Initialize pygame
     pygame.init()
 
@@ -78,7 +75,6 @@ def main():
     index = 0
     while y < settings.grid_y:
         while x < settings.grid_x:
-            # coordinates = (x * settings.tile_width, y * settings.tile_height)
             tiles.add(Tile(
                 index + 1,
                 cards[index + 1],
@@ -99,13 +95,15 @@ def main():
 
     # Variable to keep our main loop running
     running = True
+
+    # Variables to control tile animations
     wait = False
     flip_back = False
 
     # Our main loop!
     while running:
 
-        # for loop through the event queue
+        # For loop through the event queue
         for event in pygame.event.get():
             # Check for KEYDOWN event; KEYDOWN is a constant defined in pygame.locals, which we imported earlier
             if event.type == KEYDOWN:
@@ -118,7 +116,7 @@ def main():
 
         tiles.draw(screen)
 
-        # Handle wait
+        # Handle game state.
         if wait:
             wait = False
             pygame.time.wait(1000)
@@ -139,7 +137,6 @@ def main():
                         if status == 'not_a_match':
                             flip_back = True
 
-        clock.tick(10)
         pygame.display.flip()
 
     pygame.time.wait(1000)
